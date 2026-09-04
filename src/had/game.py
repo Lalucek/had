@@ -4,7 +4,7 @@ import random
 from collections import deque
 from enum import Enum
 
-from . import config
+from . import config, ui
 
 
 class Direction(Enum):
@@ -86,11 +86,14 @@ class Food:
         self._color = config.FOOD_COLORS[random.randint(0, len(config.FOOD_COLORS) - 1)]
 
 
-class Game:
+class Game():
     def __init__(self):
+        self.title("Had")
         self.board_size = config.BOARD_SIZE
         self.player = Player(config.START_POSITION, config.START_POSITION)
         self.food_pieces = []
+        self.board = [self.board_size][self.board_size]
+        self._ui = ui.View()
 
     def _spawn_new_food(self):
         occupied = {food.position for food in self.food_pieces} | set(self.player.body)
