@@ -1,2 +1,6 @@
+from . import game
+
+
 def main():
-    pass
+    game_instance = game.Game()
+    game_instance.start_game()

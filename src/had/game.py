@@ -40,16 +40,10 @@ class Player:
     def add_body_part(self) -> None:
         self._body.append(self.body[-1])
 
-    def move(self, food) -> bool:
-        """False if the move results in gameover, Ture otherwise"""
+    def move(self, food: list[tuple[int,int]]) -> tuple[int,int]:
         new_head = self._body[0] + self.direction
-        # Collision check
-        if self.head_illegal(new_head):
-            return False
-        if not self.head_food_collision():
-            self._body.pop()
         self._body.append(new_head)
-        return True
+        return new_head
 
     def head_illegal(self, new_head) -> bool:
         return bool(
@@ -60,7 +54,7 @@ class Player:
             or new_head[1] >= config.BOARD_SIZE
         )
 
-    def head_food_collision(self, new_head, food_pieces) -> bool:
+    def head_food_collision(self, new_head: tuple[int,int], food_pieces: list[tuple[int,int]]) -> bool:
         return new_head in food_pieces
 
 
@@ -86,13 +80,12 @@ class Food:
         self._color = config.FOOD_COLORS[random.randint(0, len(config.FOOD_COLORS) - 1)]
 
 
-class Game():
+class Game:
     def __init__(self):
         self.title("Had")
         self.board_size = config.BOARD_SIZE
         self.player = Player(config.START_POSITION, config.START_POSITION)
         self.food_pieces = []
-        self.board = [self.board_size][self.board_size]
         self._ui = ui.View()
 
     def _spawn_new_food(self):
@@ -105,3 +98,24 @@ class Game():
         ) in occupied:
             pass
         self.food_pieces.append(Food(*new_food_pos))
+
+    def start_game(self):
+        self.game_loop()
+
+    def game_loop(self):
+        # Update player position based on current position
+        # self._update_player_position() returns False if the move is illegal (game over), True otherwise
+        if self._update_player_position():
+            self._ui.draw_game(self.board, self.food_pieces, self.player.body)
+
+    def _update_player_position(self) -> bool:
+        """Returns False if the move is illegal (game over), True otherwise"""
+        self.board[self.player.postion[0]][self.player.position[1]]
+        new_head = self.player.move(self.food_pieces)
+        if self.player.head_illegal(new_head):
+            #Game over
+            print("Game over")
+            return False
+        if not self.player.head_food_collision(new_head, self.food_pieces):
+            self.player.body.pop()
+        return True
