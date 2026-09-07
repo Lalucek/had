@@ -1,6 +1,8 @@
 from collections.abc import Iterator
 
-import config, game, ui
+import config
+import game
+import ui
 
 
 def blocks_for(game_instance: game.Game) -> Iterator[ui.Block]:
@@ -12,13 +14,17 @@ def blocks_for(game_instance: game.Game) -> Iterator[ui.Block]:
         yield ui.Block(*food.position, food.color)
 
 def gameloop(game_instance: game.Game, view: ui.View):
-    if game_instance.update_player_position():
+    if game_instance.update_everything():
         view.draw_game(blocks_for(game_instance))
         view.after(config.MS_PER_FRAME, gameloop, game_instance, view)
 
 def main():
     game_instance = game.Game()
     view = ui.View()
+    view.bind("<Up>", lambda e: game_instance.change_direction(game.Direction.UP))
+    view.bind("<Down>", lambda e: game_instance.change_direction(game.Direction.DOWN))
+    view.bind("<Left>", lambda e: game_instance.change_direction(game.Direction.LEFT))
+    view.bind("<Right>", lambda e: game_instance.change_direction(game.Direction.RIGHT))
     gameloop(game_instance, view)
     view.mainloop()
 
