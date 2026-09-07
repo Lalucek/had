@@ -4,7 +4,7 @@ import random
 from collections import deque
 from enum import Enum
 
-from . import config, ui
+import config
 
 
 class Direction(Enum):
@@ -28,7 +28,7 @@ class Player:
 
     def change_direction(self, new_direction: Direction) -> None:
         if self.lenght > 1:
-            if new_direction != self.direction.opposite_direction():
+            if new_direction != self.direction.opposite_direction:
                 self.direction = new_direction
             return
         self.direction = new_direction
@@ -40,10 +40,13 @@ class Player:
     def add_body_part(self) -> None:
         self._body.append(self.body[-1])
 
-    def move(self, food: list[tuple[int,int]]) -> tuple[int,int]:
-        new_head = self._body[0] + self.direction
-        self._body.append(new_head)
-        return new_head
+    def move(self, food: list[tuple[int,int]]) -> bool:
+        new_head = self._body[0] + self.direction.value
+        new_head = tuple(x + y for x,y in zip(self._body[0], self.direction.value))
+        if self.head_illegal(new_head):
+            return False
+        self._body.appendleft(new_head)
+        return True
 
     def head_illegal(self, new_head) -> bool:
         return bool(
@@ -54,7 +57,8 @@ class Player:
             or new_head[1] >= config.BOARD_SIZE
         )
 
-    def head_food_collision(self, new_head: tuple[int,int], food_pieces: list[tuple[int,int]]) -> bool:
+    def head_food_collision(self, body: tuple[int,int], food_pieces: list[tuple[int,int]]) -> bool:
+        new_head = body[0]
         return new_head in food_pieces
 
 
@@ -82,11 +86,9 @@ class Food:
 
 class Game:
     def __init__(self):
-        self.title("Had")
         self.board_size = config.BOARD_SIZE
-        self.player = Player(config.START_POSITION, config.START_POSITION)
+        self.player = Player(config.START_POSITION, config.START_POSITION, Direction.UP)
         self.food_pieces = []
-        self._ui = ui.View()
 
     def _spawn_new_food(self):
         occupied = {food.position for food in self.food_pieces} | set(self.player.body)
@@ -99,23 +101,13 @@ class Game:
             pass
         self.food_pieces.append(Food(*new_food_pos))
 
-    def start_game(self):
-        self.game_loop()
-
-    def game_loop(self):
-        # Update player position based on current position
-        # self._update_player_position() returns False if the move is illegal (game over), True otherwise
-        if self._update_player_position():
-            self._ui.draw_game(self.board, self.food_pieces, self.player.body)
-
-    def _update_player_position(self) -> bool:
+    def update_player_position(self) -> bool:
+        print("running")
         """Returns False if the move is illegal (game over), True otherwise"""
-        self.board[self.player.postion[0]][self.player.position[1]]
-        new_head = self.player.move(self.food_pieces)
-        if self.player.head_illegal(new_head):
+        if not self.player.move(self.food_pieces):
             #Game over
             print("Game over")
             return False
-        if not self.player.head_food_collision(new_head, self.food_pieces):
+        if not self.player.head_food_collision(self.player.body, [food.position for food in self.food_pieces]):
             self.player.body.pop()
         return True
