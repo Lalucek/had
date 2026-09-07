@@ -1,4 +1,6 @@
 import tkinter as tk
+from typing import NamedTuple
+from collections.abc import Iterable
 
 import config
 """
