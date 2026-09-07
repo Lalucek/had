@@ -124,7 +124,6 @@ class Game:
         return True
 
     def _apply_pending_direction(self) -> None:
-        print(self.player.direction)
         if self.pending_direction != self.player.direction.opposite_direction:
             self.player.direction = self.pending_direction
     def change_direction(self, new_direction: Direction) -> None:
