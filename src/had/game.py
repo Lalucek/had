@@ -17,8 +17,12 @@ class Direction(Enum):
     def opposite_direction(self) -> Direction:
         x, y = self.value
         return Direction((-x, -y))
-
-
+    
+    @staticmethod
+    def get_opposite(direction: Direction):
+        x, y = direction.value
+        return Direction((-x, -y))
+    
 class Player:
     def __init__(self, x_pos: int, y_pos: int, direction: Direction):
         self.head_x, self.head_y, self.direction = x_pos, y_pos, direction
@@ -86,10 +90,15 @@ class Food:
 
 class Game:
     def __init__(self):
+        self.pending_direction = Direction.get_opposite(Direction[config.START_DIRECTION])
         self.board_size = config.BOARD_SIZE
-        self.player = Player(config.START_POSITION, config.START_POSITION, Direction.UP)
+        self.player = Player(config.START_POSITION, config.START_POSITION, Direction[config.START_DIRECTION])
         self.food_pieces = []
+        self._spawn_food_initial()
 
+    def _spawn_food_initial(self):
+        for i in range(config.MAX_FOOD_AT_A_TIME):
+            self._spawn_new_food()
     def _spawn_new_food(self):
         occupied = {food.position for food in self.food_pieces} | set(self.player.body)
         while (
@@ -101,13 +110,22 @@ class Game:
             pass
         self.food_pieces.append(Food(*new_food_pos))
 
-    def update_player_position(self) -> bool:
-        print("running")
+    def update_everything(self) -> bool:
         """Returns False if the move is illegal (game over), True otherwise"""
+        self._apply_pending_direction()
         if not self.player.move(self.food_pieces):
             #Game over
-            print("Game over")
             return False
         if not self.player.head_food_collision(self.player.body, [food.position for food in self.food_pieces]):
             self.player.body.pop()
+        else:
+            self.food_pieces = [f for f in self.food_pieces if f.position != (self.player.head_x, self.player.head_y)]
+            self._spawn_new_food()
         return True
+
+    def _apply_pending_direction(self) -> None:
+        print(self.player.direction)
+        if self.pending_direction != self.player.direction.opposite_direction:
+            self.player.direction = self.pending_direction
+    def change_direction(self, new_direction: Direction) -> None:
+        self.pending_direction = new_direction
