@@ -1,8 +1,9 @@
 import tkinter as tk
-from typing import NamedTuple
 from collections.abc import Iterable
+from typing import NamedTuple
 
 import config
+
 """
 Food dependency removed
 from __future__ import annotations
@@ -22,7 +23,7 @@ class View(tk.Tk):
         self.title = "Had"
         self.pixels_per_block = config.UI_PIXELS_PER_BLOCK
         self.canvas = tk.Canvas(self, width=config.BOARD_SIZE * self.pixels_per_block,
-                                 height=config.BOARD_SIZE  * self.pixels_per_block)
+                                 height=config.BOARD_SIZE  * self.pixels_per_block, bg=config.BG_COLOR)
         self.canvas.pack()
 
     def draw_game(self, blocks: Iterable[Block]):
@@ -30,10 +31,10 @@ class View(tk.Tk):
         for block in blocks:
             x_topright, y_topright = block.x * self.pixels_per_block, block.y * self.pixels_per_block
             x_botleft, y_botleft = x_topright + self.pixels_per_block, y_topright + self.pixels_per_block
-            self.canvas.create_rectangle(x_topright, y_topright, x_botleft, y_botleft, block.color)
+            self.canvas.create_rectangle(x_topright, y_topright, x_botleft, y_botleft, fill=block.color)
 
     def tick(self):
-        self.after(config.MS_PER_FRAM, self.tick)
+        self.after(config.MS_PER_FRAME, self.tick)
     
 if __name__ == "__main__":
     v = View()

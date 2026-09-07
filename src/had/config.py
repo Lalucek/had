@@ -1,9 +1,9 @@
 BOARD_SIZE = 25
 START_POSITION = BOARD_SIZE // 2
 
-BG = "#0a0a0a"
-SNAKE = "#9ca3af"
-SNAKE_HEAD = "#e5e7eb"
+BG_COLOR = "#0a0a0a"
+SNAKE_COLOR = "#9ca3af"
+SNAKE_HEAD_COLOR = "#e5e7eb"
 
 FOOD_COLORS = [
     "#ff5252",
@@ -15,5 +15,5 @@ FOOD_COLORS = [
 
 MAX_FOOD_AT_A_TIME = 2
 UI_PIXELS_PER_BLOCK = 16
-FPS = 60
+FPS = 2
 MS_PER_FRAME = int(1000 / FPS)
