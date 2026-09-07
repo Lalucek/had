@@ -119,7 +119,7 @@ class Game:
         if not self.player.head_food_collision(self.player.body, [food.position for food in self.food_pieces]):
             self.player.body.pop()
         else:
-            self.food_pieces = [f for f in self.food_pieces if f.position != (self.player.head_x, self.player.head_y)]
+            self.food_pieces = [f for f in self.food_pieces if f.position != self.player.body[0]]
             self._spawn_new_food()
         return True
 
